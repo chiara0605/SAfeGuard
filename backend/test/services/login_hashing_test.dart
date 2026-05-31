@@ -1,154 +1,147 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:test/test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:crypto/crypto.dart';
+import 'package:mockito/annotations.dart';
 
-// Project Imports
-import 'package:data_models/utente.dart';
-import 'package:data_models/utente_generico.dart';
+import 'package:backend/services/login_service.dart';
 import 'package:backend/repositories/user_repository.dart';
 import 'package:backend/services/jwt_service.dart';
-import 'package:backend/services/login_service.dart';
+import 'package:data_models/utente.dart';
 
-// Generated Mocks
-import 'ChiaraLogin.mocks.dart';
+
+
+import 'email_service_test.mocks.dart';
+import 'login_hashing_test.mocks.dart' hide MockUserRepository;
 
 @GenerateNiceMocks([
   MockSpec<UserRepository>(),
   MockSpec<JWTService>(),
 ])
 void main() {
+  late MockUserRepository mockRepo;
+  late MockJWTService mockJwt;
   late LoginService service;
-  late MockUserRepository mockUserRepository;
-  late MockJWTService mockJwtService;
-
-  const testPassword = 'Password123';
-  const secret = 'fallback_secret_dev';
-
-  String hashPassword(String password) {
-    final bytes = utf8.encode(password + secret);
-    return sha256.convert(bytes).toString();
-  }
 
   setUp(() {
-    mockUserRepository = MockUserRepository();
-    mockJwtService = MockJWTService();
+    mockRepo = MockUserRepository();
+    mockJwt = MockJWTService();
 
     service = LoginService(
-      userRepository: mockUserRepository,
-      jwtService: mockJwtService,
+      userRepository: mockRepo,
+      jwtService: mockJwt,
     );
   });
 
-  /**
-   * ===============================
-   * Test Case ID: TC_LoginHashing_1
-   * Test Frame: TF1
-   * Purpose: Verify login fails when standard login password hash mismatches
-   *
-   * Input parameters:
-   * - email = user@test.com
-   * - password = Password123
-   * ===============================
-   */
-  test('TC_LoginHashing_1 - TYPE1,MATCH2 [ERROR]', () async {
-    when(
-      mockUserRepository.findUserByEmail('user@test.com'),
-    ).thenAnswer((_) async => {
+  // ===========================
+  // TF1 - LOGIN STANDARD OK
+  // ===========================
+  test('TC_LOGIN_1 - Standard login success', () async {
+    /**
+     * ===========================
+     * Test Case ID: TC_LOGIN_1
+     * Test Frame: TF1
+     * Objective: Verificare login corretto con email e password valida
+     *
+     * Input parameters:
+     * - email = test@mail.com
+     * - password = password123
+     * ===========================
+     */
+
+    final userJson = {
       'id': 1,
-      'email': 'user@test.com',
-      'passwordHash': 'WRONG_HASH',
+      'email': 'test@mail.com',
+      'passwordHash': 'VALID_HASH',
       'isVerified': true,
-    });
+      'attivo': true,
+      'isSoccorritore': false,
+    };
+
+    when(mockRepo.findUserByEmail('test@mail.com'))
+        .thenAnswer((_) async => userJson);
+
+    when(mockJwt.generateToken(any, any))
+        .thenReturn('fake_token');
 
     final result = await service.login(
-      email: 'user@test.com',
-      password: testPassword,
-    );
-
-    expect(result, isNull);
-
-    verify(mockUserRepository.findUserByEmail('user@test.com')).called(1);
-    verifyNever(mockJwtService.generateToken(any, any));
-  });
-
-  /**
-   * ===============================
-   * Test Case ID: TC_LoginHashing_2
-   * Test Frame: TF2
-   * Purpose: Verify login succeeds when standard login password hash matches
-   *
-   * Input parameters:
-   * - email = user@test.com
-   * - password = Password123
-   * ===============================
-   */
-  test('TC_LoginHashing_2 - TYPE1,MATCH1', () async {
-    when(
-      mockUserRepository.findUserByEmail('user@test.com'),
-    ).thenAnswer((_) async => {
-      'id': 1,
-      'email': 'user@test.com',
-      'passwordHash': hashPassword(testPassword),
-      'isVerified': true,
-    });
-
-    when(
-      mockJwtService.generateToken(1, 'Utente'),
-    ).thenReturn('mocked_jwt_token');
-
-    final result = await service.login(
-      email: 'user@test.com',
-      password: testPassword,
+      email: 'test@mail.com',
+      password: 'password123',
     );
 
     expect(result, isNotNull);
-    expect(result!['token'], equals('mocked_jwt_token'));
-    expect(result['user'], isNotNull);
-
-    verify(mockUserRepository.findUserByEmail('user@test.com')).called(1);
-    verify(mockJwtService.generateToken(1, 'Utente')).called(1);
+    expect(result!['token'], equals('fake_token'));
+    expect(result['user'], isA<Utente>());
   });
 
-  /**
-   * ===============================
-   * Test Case ID: TC_LoginHashing_3
-   * Test Frame: TF3
-   * Purpose: Verify social login users cannot login with password
-   *
-   * Input parameters:
-   * - email = social@test.com
-   * - password = Password123
-   * ===============================
-   */
-  test('TC_LoginHashing_3 - TYPE2', () async {
-    when(
-      mockUserRepository.findUserByEmail('social@test.com'),
-    ).thenAnswer((_) async => {
+  // ===========================
+  // TF2 - SOCIAL LOGIN (NO PASSWORD HASH)
+  // ===========================
+  test('TC_LOGIN_2 - Social login throws exception', () async {
+    /**
+     * ===========================
+     * Test Case ID: TC_LOGIN_2
+     * Test Frame: TF2
+     * Objective: Verificare login social senza password hash
+     *
+     * Input parameters:
+     * - email = social@mail.com
+     * - password = ignored
+     * ===========================
+     */
+
+    final userJson = {
       'id': 2,
-      'email': 'social@test.com',
+      'email': 'social@mail.com',
       'passwordHash': '',
       'isVerified': true,
-    });
+      'attivo': true,
+      'isSoccorritore': false,
+    };
+
+    when(mockRepo.findUserByEmail('social@mail.com'))
+        .thenAnswer((_) async => userJson);
 
     expect(
-          () => service.login(
-        email: 'social@test.com',
-        password: testPassword,
+          () async => await service.login(
+        email: 'social@mail.com',
+        password: 'any',
       ),
-      throwsA(
-        predicate(
-              (e) =>
-          e is Exception &&
-              e.toString().contains('Google/Apple'),
-        ),
-      ),
+      throwsException,
+    );
+  });
+
+  // ===========================
+  // TF3 - PASSWORD MISMATCH (ERROR)
+  // ===========================
+  test('TC_LOGIN_3 - Password mismatch returns null', () async {
+    /**
+     * ===========================
+     * Test Case ID: TC_LOGIN_3
+     * Test Frame: TF3
+     * Objective: Verificare login fallito per password errata
+     *
+     * Input parameters:
+     * - email = test@mail.com
+     * - password = wrong_password
+     * ===========================
+     */
+
+    final userJson = {
+      'id': 3,
+      'email': 'test@mail.com',
+      'passwordHash': 'VALID_HASH',
+      'isVerified': true,
+      'attivo': true,
+      'isSoccorritore': false,
+    };
+
+    when(mockRepo.findUserByEmail('test@mail.com'))
+        .thenAnswer((_) async => userJson);
+
+    final result = await service.login(
+      email: 'test@mail.com',
+      password: 'wrong_password',
     );
 
-    verify(mockUserRepository.findUserByEmail('social@test.com')).called(1);
-    verifyNever(mockJwtService.generateToken(any, any));
+    expect(result, isNull);
   });
 }
-

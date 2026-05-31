@@ -1,12 +1,13 @@
 import 'package:test/test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-
-import 'ChiaraSMS.mocks.dart';
+import 'package:mockito/annotations.dart';
 
 import 'package:backend/services/sms_service.dart';
 import 'package:backend/services/email_service.dart';
 import 'package:backend/repositories/user_repository.dart';
+
+import 'ChiaraSMS.mocks.dart';
+import 'login_hashing_test.mocks.dart';
 
 @GenerateNiceMocks([
   MockSpec<EmailService>(),
@@ -24,117 +25,117 @@ void main() {
     smsService = SmsService(
       emailService: mockEmailService,
       userRepository: mockUserRepository,
-      simulationEmail: 'test@simulation.com',
+      simulationEmail: 'test@sms.it',
     );
   });
 
-  // =========================
-  // TC_RF1 - TEL2 + CODE1
-  // =========================
-  test('TC_RF1 - TEL2 invalid format should throw ArgumentError', () {
-    /**
-     * ===============================
-     * Test Case ID: TC_RF1_1
-     * Test Frame: TEL2[ERROR], CODE1
-     * Purpose: Validate that invalid phone format is rejected before OTP processing
-     *
-     * Input parameters:
-     * - telefono = "12345"
-     * - otp = "123456"
-     * ===============================
-     */
+  group('SmsService - sendOtp', () {
 
-    expect(
-          () => smsService.sendOtp("12345", "123456"),
-      throwsA(isA<ArgumentError>()),
+    test(
+      'TC_SMS_1 - TEL1 + CODE1 (valid phone + valid OTP)',
+          () async {
+        /**
+         * ===========================
+         * Test Case ID: TC_SMS_1
+         * Test Frame: TF1
+         * Objective: Verificare invio OTP con telefono valido e OTP corretto
+         *
+         * Input parameters:
+         * - telefono = +391234567890
+         * - otp = 123456
+         * ===========================
+         */
+
+        // Arrange
+        when(mockUserRepository.findUserByPhone('+391234567890'))
+            .thenAnswer((_) async => {'id': 1, 'telefono': '+391234567890'});
+
+        when(mockEmailService.send(
+          to: anyNamed('to'),
+          subject: anyNamed('subject'),
+          htmlContent: anyNamed('htmlContent'),
+        )).thenAnswer((_) async {});
+
+        // Act
+        await smsService.sendOtp('+391234567890', '123456');
+
+        // Assert
+        verify(mockUserRepository.findUserByPhone('+391234567890')).called(1);
+        verify(mockEmailService.send(
+          to: 'test@sms.it',
+          subject: anyNamed('subject'),
+          htmlContent: anyNamed('htmlContent'),
+        )).called(1);
+      },
     );
-  });
 
-  // =========================
-  // TC_RF2 - TEL3 + CODE1
-  // =========================
-  test('TC_RF2 - Non existing phone should throw Exception', () async {
-    /**
-     * ===============================
-     * Test Case ID: TC_RF2_1
-     * Test Frame: TEL3[ERROR], CODE1
-     * Purpose: Verify behavior when phone is not found in DB
-     *
-     * Input parameters:
-     * - telefono = "+391234567890"
-     * - otp = "123456"
-     * ===============================
-     */
+    test(
+      'TC_SMS_2 - TEL1 + CODE2 (invalid OTP format)',
+          () {
+        /**
+         * ===========================
+         * Test Case ID: TC_SMS_2
+         * Test Frame: TF2
+         * Objective: Verificare errore formato OTP non valido
+         *
+         * Input parameters:
+         * - telefono = +391234567890
+         * - otp = 12AB (invalid)
+         * ===========================
+         */
 
-    when(mockUserRepository.findUserByPhone("+391234567890"))
-        .thenAnswer((_) async => null);
-
-    expect(
-          () => smsService.sendOtp("+391234567890", "123456"),
-      throwsException,
+        expect(
+              () => smsService.sendOtp('+391234567890', '12AB'),
+          throwsA(isA<ArgumentError>()),
+        );
+      },
     );
-  });
 
-  // =========================
-  // TC_RF3 - TEL1 + CODE2
-  // =========================
-  test('TC_RF3 - Invalid OTP format should throw ArgumentError', () async {
-    /**
-     * ===============================
-     * Test Case ID: TC_RF3_1
-     * Test Frame: TEL1, CODE2[ERROR]
-     * Purpose: Validate OTP format rules (must be 6 digits)
-     *
-     * Input parameters:
-     * - telefono = "+391234567890"
-     * - otp = "12A45"
-     * ===============================
-     */
+    test(
+      'TC_SMS_3 - TEL2 (invalid format) + CODE1',
+          () {
+        /**
+         * ===========================
+         * Test Case ID: TC_SMS_3
+         * Test Frame: TF3
+         * Objective: Verificare errore formato telefono non valido
+         *
+         * Input parameters:
+         * - telefono = 12345
+         * - otp = 123456
+         * ===========================
+         */
 
-    when(mockUserRepository.findUserByPhone("+391234567890"))
-        .thenAnswer((_) async => {'id': 1});
-
-    expect(
-          () => smsService.sendOtp("+391234567890", "12A45"),
-      throwsA(isA<ArgumentError>()),
+        expect(
+              () => smsService.sendOtp('12345', '123456'),
+          throwsA(isA<ArgumentError>()),
+        );
+      },
     );
-  });
 
-  // =========================
-  // TC_RF4 - TEL1 + CODE1
-  // =========================
-  test('TC_RF4 - Valid phone and OTP should complete successfully', () async {
-    /**
-     * ===============================
-     * Test Case ID: TC_RF4_1
-     * Test Frame: TEL1, CODE1
-     * Purpose: Verify successful OTP flow and email invocation
-     *
-     * Input parameters:
-     * - telefono = "+391234567890"
-     * - otp = "123456"
-     * ===============================
-     */
+    test(
+      'TC_SMS_4 - TEL3 (non esistente) + CODE1',
+          () {
+        /**
+         * ===========================
+         * Test Case ID: TC_SMS_4
+         * Test Frame: TF4
+         * Objective: Verificare errore utente non trovato nel DB
+         *
+         * Input parameters:
+         * - telefono = +399999999999
+         * - otp = 123456
+         * ===========================
+         */
 
-    when(mockUserRepository.findUserByPhone("+391234567890"))
-        .thenAnswer((_) async => {'id': 1});
+        when(mockUserRepository.findUserByPhone('+399999999999'))
+            .thenAnswer((_) async => null);
 
-    when(
-      mockEmailService.send(
-        to: anyNamed('to'),
-        subject: anyNamed('subject'),
-        htmlContent: anyNamed('htmlContent'),
-      ),
-    ).thenAnswer((_) async => {});
-
-    await smsService.sendOtp("+391234567890", "123456");
-
-    verify(
-      mockEmailService.send(
-        to: "test@simulation.com",
-        subject: anyNamed('subject'),
-        htmlContent: anyNamed('htmlContent'),
-      ),
-    ).called(1);
+        expect(
+              () => smsService.sendOtp('+399999999999', '123456'),
+          throwsException,
+        );
+      },
+    );
   });
 }

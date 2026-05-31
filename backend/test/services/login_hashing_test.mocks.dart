@@ -5,11 +5,10 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
 
-import 'package:backend/repositories/user_repository.dart' as _i3;
-import 'package:backend/services/jwt_service.dart' as _i5;
+import 'package:backend/repositories/user_repository.dart' as _i5;
+import 'package:backend/services/email_service.dart' as _i3;
 import 'package:data_models/utente_generico.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -32,10 +31,32 @@ class _FakeUtenteGenerico_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
+/// A class which mocks [EmailService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockEmailService extends _i1.Mock implements _i3.EmailService {
+  @override
+  _i4.Future<void> send({
+    required String? to,
+    required String? subject,
+    required String? htmlContent,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#send, [], {
+              #to: to,
+              #subject: subject,
+              #htmlContent: htmlContent,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+}
+
 /// A class which mocks [UserRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUserRepository extends _i1.Mock implements _i3.UserRepository {
+class MockUserRepository extends _i1.Mock implements _i5.UserRepository {
   @override
   _i4.Future<Map<String, dynamic>?> findUserByEmail(String? email) =>
       (super.noSuchMethod(
@@ -202,32 +223,4 @@ class MockUserRepository extends _i1.Mock implements _i3.UserRepository {
             ),
           )
           as _i4.Future<List<String>>);
-}
-
-/// A class which mocks [JWTService].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockJWTService extends _i1.Mock implements _i5.JWTService {
-  @override
-  String generateToken(int? userId, String? userType) =>
-      (super.noSuchMethod(
-            Invocation.method(#generateToken, [userId, userType]),
-            returnValue: _i6.dummyValue<String>(
-              this,
-              Invocation.method(#generateToken, [userId, userType]),
-            ),
-            returnValueForMissingStub: _i6.dummyValue<String>(
-              this,
-              Invocation.method(#generateToken, [userId, userType]),
-            ),
-          )
-          as String);
-
-  @override
-  Map<String, dynamic>? verifyToken(String? token) =>
-      (super.noSuchMethod(
-            Invocation.method(#verifyToken, [token]),
-            returnValueForMissingStub: null,
-          )
-          as Map<String, dynamic>?);
 }
