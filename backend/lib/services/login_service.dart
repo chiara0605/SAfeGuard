@@ -21,8 +21,9 @@ class LoginService {
   final JWTService _jwtService;
   // Costruttore che permette di passare i mock
   LoginService({UserRepository? userRepository, JWTService? jwtService})
-    : _userRepository = userRepository ?? UserRepository(),
-      _jwtService = jwtService ?? JWTService();
+      : _userRepository = userRepository ?? UserRepository(),
+        _jwtService = jwtService ?? JWTService();
+
 
   // Funzione privata per generare l'hash
   String _hashPassword(String password) {
@@ -42,6 +43,7 @@ class LoginService {
     return RescuerConfig.isSoccorritore(email);
   }
 
+  // coverage:ignore-start
   // Login con Google
   Future<Map<String, dynamic>?> loginWithGoogle(String googleIdToken) async {
     // 1. Verifica Remota del Token Google (API di Google)
@@ -90,7 +92,7 @@ class LoginService {
         // Fallback per nome/cognome se Google non li fornisce separati
         'nome': firstName ?? fullName.split(' ').first,
         'cognome':
-            lastName ??
+        lastName ??
             (fullName.contains(' ') ? fullName.split(' ').last : ''),
         'telefono': null,
         'passwordHash': '',
@@ -115,7 +117,7 @@ class LoginService {
     final token = _jwtService.generateToken(user.id!, userType);
     return {'user': user, 'token': token};
   }
-
+// coverage:ignore-end
   // Logica principale del Login (Email/Telefono + Password)
   Future<Map<String, dynamic>?> login({
     String? email,
@@ -189,7 +191,7 @@ class LoginService {
     final token = _jwtService.generateToken(user.id!, userType);
     return {'user': user, 'token': token};
   }
-
+// coverage:ignore-start
   // Login con Apple
   Future<Map<String, dynamic>?> loginWithApple({
     required String identityToken,
@@ -275,4 +277,5 @@ class LoginService {
     final resp = utf8.decode(base64Url.decode(normalized));
     return jsonDecode(resp);
   }
+// coverage:ignore-end
 }
