@@ -360,11 +360,11 @@ td.barBg
 
      <tr>
      <td class="ItemLabel" width="10%">Date:</td>
-     <td class="ItemText" width="35%">2026-05-31 09:23:29.494717</td>
+     <td class="ItemText" width="35%">2026-05-31 10:48:12.623762</td>
      <td class="ItemLabel" width="10%">Mutations:</td>
-     <td class="ItemReport" width="15%">17</td>
+     <td class="ItemReport" width="15%">18</td>
      <td class="ItemReport" width="15%">27</td>
-     <td class="ItemReportMedium" width="15%">63.0 %</td>
+     <td class="ItemReportMedium" width="15%">66.7 %</td>
      </tr>
      
      <tr>
@@ -437,14 +437,11 @@ td.barBg
 <a name="33"><span class="lineNumber">      33 </span>    }</a>
 <a name="34"><span class="lineNumber">      34 </span></a>
 <a name="35"><span class="lineNumber">      35 </span>    // Validazione formato OTP</a>
-<a name="36"><button class="collapsible problem"><pre class="fileContents"><span class="lineNumber">      36 </span>    if (otp.length != 6 || int.tryParse(otp) == null) {</pre></button>
+<a name="36"><button class="collapsible hit"><pre class="fileContents"><span class="lineNumber">      36 </span>    if (otp.length != 6 || int.tryParse(otp) == null) {</pre></button>
 <div class="content">
-<b>Undetected mutations:</b>
-<table class="mutationTable" width="100%">
-<tr><td class="mutationLabel" width="5%">1 :</td><td class="mutationText" width="87%"><span class="addedLine">+     if (otp.length != 6 <span class="changedTokens">&amp;&amp;</span> int.tryParse(otp) == null) {</span></td><td class="match">||<span class="tooltip">Id: builtin.or</span></td></tr></table>
 <b>Detected mutations:</b>
 <table class="mutationTable" width="100%">
-<tr><td class="mutationLabel" width="5%">1 :</td><td class="mutationText" width="87%"><span class="addedLine">+     if (otp.length != 6 || int.tryParse(otp) <span class="changedTokens">!=</span> null) {</span></td><td class="match">==<span class="tooltip">Id: builtin.op.eq</span></td></tr><tr><td colspan="3"><hr class="ruler"/></td></tr><tr><td class="mutationLabel" width="5%">2 :</td><td class="mutationText" width="87%"><span class="addedLine">+     if (otp.length <span class="changedTokens">==</span> 6 || int.tryParse(otp) == null) {</span></td><td class="match">!=<span class="tooltip">Id: builtin.op.neq</span></td></tr><tr><td colspan="3"><hr class="ruler"/></td></tr><tr><td class="mutationLabel" width="5%">3 :</td><td class="mutationText" width="87%"><span class="addedLine">+    <span class="changedTokens"> if (!(otp.length != 6 || int.tryParse(otp) == null)) {</span></span></td><td class="match">RegExp: pattern=[\s]if[\s]*\((.*?)\)[\s]*{ flags=ms<span class="tooltip">Id: builtin.if</span></td></tr><tr><td colspan="3"><hr class="ruler"/></td></tr><tr><td class="mutationLabel" width="5%">4 :</td><td class="mutationText" width="87%"><span class="addedLine">+     <span class="changedTokens">if (!(otp.length != 6 )||</span> int.tryParse(otp) == null) {</span></td><td class="match">RegExp: pattern=if\s*\(([^|&\)]*?)([|&][|&]) flags=m<span class="tooltip">Id: builtin.if.start</span></td></tr><tr><td colspan="3"><hr class="ruler"/></td></tr><tr><td class="mutationLabel" width="5%">5 :</td><td class="mutationText" width="87%"><span class="addedLine">+     if (otp.length != 6 <span class="changedTokens">||!( int.tryParse(otp))</span> == null) {</span></td><td class="match">RegExp: pattern=([|&][|&])([^|&]*?)\) flags=m<span class="tooltip">Id: builtin.if.end</span></td></tr></table>
+<tr><td class="mutationLabel" width="5%">1 :</td><td class="mutationText" width="87%"><span class="addedLine">+     if (otp.length != 6 <span class="changedTokens">&amp;&amp;</span> int.tryParse(otp) == null) {</span></td><td class="match">||<span class="tooltip">Id: builtin.or</span></td></tr><tr><td colspan="3"><hr class="ruler"/></td></tr><tr><td class="mutationLabel" width="5%">2 :</td><td class="mutationText" width="87%"><span class="addedLine">+     if (otp.length != 6 || int.tryParse(otp) <span class="changedTokens">!=</span> null) {</span></td><td class="match">==<span class="tooltip">Id: builtin.op.eq</span></td></tr><tr><td colspan="3"><hr class="ruler"/></td></tr><tr><td class="mutationLabel" width="5%">3 :</td><td class="mutationText" width="87%"><span class="addedLine">+     if (otp.length <span class="changedTokens">==</span> 6 || int.tryParse(otp) == null) {</span></td><td class="match">!=<span class="tooltip">Id: builtin.op.neq</span></td></tr><tr><td colspan="3"><hr class="ruler"/></td></tr><tr><td class="mutationLabel" width="5%">4 :</td><td class="mutationText" width="87%"><span class="addedLine">+    <span class="changedTokens"> if (!(otp.length != 6 || int.tryParse(otp) == null)) {</span></span></td><td class="match">RegExp: pattern=[\s]if[\s]*\((.*?)\)[\s]*{ flags=ms<span class="tooltip">Id: builtin.if</span></td></tr><tr><td colspan="3"><hr class="ruler"/></td></tr><tr><td class="mutationLabel" width="5%">5 :</td><td class="mutationText" width="87%"><span class="addedLine">+     <span class="changedTokens">if (!(otp.length != 6 )||</span> int.tryParse(otp) == null) {</span></td><td class="match">RegExp: pattern=if\s*\(([^|&\)]*?)([|&][|&]) flags=m<span class="tooltip">Id: builtin.if.start</span></td></tr><tr><td colspan="3"><hr class="ruler"/></td></tr><tr><td class="mutationLabel" width="5%">6 :</td><td class="mutationText" width="87%"><span class="addedLine">+     if (otp.length != 6 <span class="changedTokens">||!( int.tryParse(otp))</span> == null) {</span></td><td class="match">RegExp: pattern=([|&][|&])([^|&]*?)\) flags=m<span class="tooltip">Id: builtin.if.end</span></td></tr></table>
 
 </div></a><a name="37"><span class="lineNumber">      37 </span>      throw ArgumentError('Formato OTP non valido');</a>
 <a name="38"><span class="lineNumber">      38 </span>    }</a>
